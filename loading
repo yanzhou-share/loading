@@ -1,0 +1,76 @@
+(function(doc){
+	var LoadingPlugin = function(options){
+		this.js = options.js;
+		this.hasloaded = [];
+		this.maxtime = 20000;
+		this.timing = 0;
+		this.loadcontainer = doc.getElementById(options.container);
+		this.loaddiv = doc.getElementById(options.loadline);
+		this.loadspan = doc.getElementById(options.span);
+		
+		this._init();
+		this._setInterval();
+	}
+	
+	LoadingPlugin.prototype = {
+		_init : function(){
+			for(var i=0,l=this.js.length;i<l;i++){
+				this.hasloaded[i] = false;
+			}
+			
+			for(var i=0,l=this.js.length;i<l;i++){
+				this._includejs(this.js[i], i);
+			}
+		},
+		//引入js
+		_includejs : function(file, index){
+			var _self = this;
+			var head = doc.getElementsByTagName('head')[0];
+			var js = doc.createElement('script');
+			js.setAttribute('type', 'text/javascript');
+			js.setAttribute('src', file);
+			head.appendChild(js);
+			//如果是IE
+			if(doc.all){
+				js.onreadystatechange = function(){
+					if(js.readyState == 'loaded' || js.readyState == 'complete'){
+						_self.hasloaded[index] = true;
+					}
+				}
+			} else {
+				js.onload = function(){
+					_self.hasloaded[index] = true;
+				}
+			}
+		},
+		_setInterval : function(){
+			var _self = this;
+			var Timer = setInterval(function(){
+				var index = 0;
+				
+				for(var i=0,l=_self.hasloaded.length;i<l;i++){
+					if(_self.hasloaded[i]){
+						index++;
+					}
+				}
+				
+				_self.loadspan.innerHTML = parseInt((index/_self.hasloaded.length)*100)+"%";
+				_self.loaddiv.style.width = parseInt((index/_self.hasloaded.length)*100)*2+"px";
+				
+				if(index == _self.hasloaded.lenght){
+					_self.loadcontainer.parentNode.removeChild(_self.loadcontainer);
+					clearInterval(Timer);
+				}
+				
+				_self.timing += 60;
+				
+        if(_self.timing>_self.maxtime){
+            clearInterval(Timer);
+            _self.loadcontainer.innerHTML= "页面加载失败！";
+        }
+			},60);
+		}
+	}
+	
+	window.LoadingPlugin = LoadingPlugin;
+})(document);

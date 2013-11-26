@@ -57,7 +57,7 @@
 				_self.loadspan.innerHTML = parseInt((index/_self.hasloaded.length)*100)+"%";
 				_self.loaddiv.style.width = parseInt((index/_self.hasloaded.length)*100)*2+"px";
 				
-				if(index == _self.hasloaded.lenght){
+				if(index == _self.hasloaded.length){
 					_self.loadcontainer.parentNode.removeChild(_self.loadcontainer);
 					clearInterval(Timer);
 				}
